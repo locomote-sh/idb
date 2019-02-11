@@ -1,0 +1,22 @@
+{
+    "name": "@locomote.sh/idb",
+    "version": "1.0.0",
+    "description": "Promise based functional wrapper for IndexedDB.",
+    "main": "lib/idb.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/locomote-sh/idb.git"
+    },
+    "keywords": [],
+    "author": "Julian Goacher",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/locomote-sh/idb/issues"
+    },
+    "homepage": "https://github.com/locomote-sh/idb#readme",
+    "dependencies": {
+    }
+}
