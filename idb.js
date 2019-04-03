@@ -27,11 +27,11 @@ function init( global ) {
 
     /**
      * Open an IndexedDB connection.
-     * @param origin    The content origin configuration.
+     * @param name      The IndexedDB instance name.
+     * @param schema    The database schema.
      */
-    function idbOpen( origin ) {
-        const { schema, url } = origin;
-        const { name = url, version } = schema;
+    function idbOpen( name, schema ) {
+        const { version } = schema;
         return new Promise( ( resolve, reject ) => {
             const request = indexedDB.open( name, version );
             request.onsuccess = ( e ) => {
@@ -41,17 +41,17 @@ function init( global ) {
                 reject( request.error );
             };
             request.onupgradeneeded = ( e ) => {
-                idbInit( schema, e.target.result );
+                idbInit( e.target.result, schema );
             };
         });
     }
 
     /**
      * Initialize an IndexedDB instance.
-     * @param schema    The DB schema.
      * @param db        The DB connection.
+     * @param schema    The DB schema.
      */
-    function idbInit( schema, db ) {
+    function idbInit( db, schema ) {
         const { stores } = schema;
         for( const name in stores ) {
             const { options, indexes } = stores[name];
@@ -150,84 +150,6 @@ function init( global ) {
     async function idbIndexCount( index, term, objStore ) {
         return reqAsPromise( objStore.index( index ).count( term ) );
     }
-        
-    /**
-     * Open the file object store.
-     * @param origin    The content origin configuration.
-     * @param mode      The transaction mode; defaults to 'readonly'.
-     */
-    function fdbOpenObjStore( origin, mode = 'readwrite' ) {
-        return idbOpenObjStore( origin, 'files', mode );
-    }
-
-    /**
-     * Iterate over file DB records.
-     * @param origin    The content origin configuration.
-     * @param index     The name of a file DB index.
-     * @param term      An index filter term.
-     * @param callback  A callback function called once for each file record that
-     *                  matches the search term. The callback function may be
-     *                  asynchonous, and the iterator will wait for the function
-     *                  to complete before continuing to the next result.
-     */
-    function fdbForEach( origin, index, term, callback ) {
-        return new Promise( async ( resolve, reject ) => {
-            const objStore = await fdbOpenObjStore( origin, 'readwrite');
-            const pending = [];
-            const request = objStore.index( index ).openCursor( term );
-            request.onsuccess = ( e ) => {
-                const cursor = e.target.result;
-                if( cursor ) {
-                    const { value } = cursor;
-                    pending.push( callback( value, objStore ) );
-                    cursor.continue();
-                }
-                else Promise.all( pending ).then( resolve );
-            };
-            request.onerror = () => reject( request.error );
-        });
-    }
-
-    /**
-     * Read a file record from the file DB.
-     * @param origin    The content origin configuration.
-     * @param path      A file path, relative to the content origin root.
-     */
-    async function fdbRead( origin, path ) {
-        const objStore = await fdbOpenObjStore( origin );
-        return idbRead( path, objStore );
-    }
-
-    /**
-     * Read a list of file records from the file DB.
-     * @param origin    The content origin configuration.
-     * @param paths     A list of file paths.
-     */
-    async function fdbReadAll( origin, paths ) {
-        const objStore = await fdbOpenObjStore( origin );
-        return idbReadAll( paths, objStore );
-    }
-
-    /**
-     * Delete a file record from the file DB.
-     * @param origin    The content origin configuration.
-     * @param path      The path of the file record to delete.
-     */
-    async function fdbDelete( origin, path ) {
-        const objStore = await fdbOpenObjStore( origin, 'readwrite');
-        return idbDelete( path, objStore );
-    }
-
-    /**
-     * Write a file record to the file DB.
-     * @param origin    The content origin configuration.
-     * @param record    The record to write.
-     */
-    async function fdbWrite( origin, record ) {
-        const objStore = await fdbOpenObjStore( origin, 'readwrite');
-        return reqAsPromise( objStore.put( record ) );
-    }
-
 
     return {
         indexedDB,
@@ -240,13 +162,7 @@ function init( global ) {
         idbDelete,
         idbOpenPK,
         idbOpenIndex,
-        idbIndexCount,
-        fdbOpenObjStore,
-        fdbForEach,
-        fdbRead,
-        fdbReadAll,
-        fdbDelete,
-        fdbWrite
+        idbIndexCount
     };
         
 }
