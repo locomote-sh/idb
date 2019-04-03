@@ -27,11 +27,10 @@ function init( global ) {
 
     /**
      * Open an IndexedDB connection.
-     * @param name      The IndexedDB instance name.
      * @param schema    The database schema.
      */
-    function idbOpen( name, schema ) {
-        const { version } = schema;
+    function idbOpen( schema ) {
+        const { name, version } = schema;
         return new Promise( ( resolve, reject ) => {
             const request = indexedDB.open( name, version );
             request.onsuccess = ( e ) => {
@@ -65,13 +64,12 @@ function init( global ) {
 
     /**
      * Open a transaction on an object store.
-     * @param name      The IndexedDB instance name.
      * @param schema    The database schema.
      * @param store     The object store name.
      * @param mode      The transaction mode; defaults to 'readonly'.
      */
-    async function idbOpenObjStore( name, schema, store, mode = 'readonly' ) {
-        const db = await idbOpen( name, schema );
+    async function idbOpenObjStore( schema, store, mode = 'readonly' ) {
+        const db = await idbOpen( schema );
         return db.transaction( store, mode ).objectStore( store );
     }
 

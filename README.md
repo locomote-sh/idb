@@ -31,15 +31,14 @@ On the server side, something such as <https://github.com/axemclion/IndexedDBShi
 
 ## Basic usage
 
-You normally start by opening an object store, providing both a DB instance name and an object store name.
-Note that an object describing the DB schema is also needed (see next section):
+You start by opening an object store, providing a DB schema and an object store name.
+(DB schemas are described in the next section).
 
 ```js
-    const name = 'fruit-db';
-    const schema = { ... };
+    const schema = { name: 'fruit-db', stores: {...} };
     const store = 'fruit-objects';
 
-    const objStore = await idbOpenObStore( name, schema, store );
+    const objStore = await idbOpenObStore( schema, store );
 ```
 
 Objects can then be read from the object store using their primary key:
@@ -89,6 +88,7 @@ The format looks like this:
 
 ```json
 {
+    "name": <String>,
     "version": <Number>,
     "stores": {
         <object-store-name>: {
@@ -106,6 +106,7 @@ The format looks like this:
 
 Where:
 
+* `"name"`: Is a string providing the IndexedDB instance name;
 * `"version"`: Is a number describing the schema version;
 * `"stores"`: Is an object containing one or more object store definitions;
 * `<object-store-name>`: Is a valid object store name, mapped to that store's definition;
@@ -120,6 +121,8 @@ A valid schema document looks like this:
 
 ```json
 {
+    "name": "example",
+    "version": 1,
     "stores": {
         "files": {
             "options": {
@@ -152,14 +155,13 @@ A valid schema document looks like this:
 
 Note that all functions return promises.
 
-`idbOpen( name, schema )`
+`idbOpen( schema )`
 
 Open an IndexedDB instance.
 Creates a new DB if no DB with the specified name exists.
 Upgrades the existing DB if the schema versions are different.
 
-* `name`: The name of the database to open.
-* `schema`: The database's schema.
+* `schema`: The database schema.
 
 ----
 
@@ -172,11 +174,10 @@ Initialize an IndexedDB instance.
 
 ----
 
-`idbOpenObjStore( name, schema, store, mode )`
+`idbOpenObjStore( schema, store, mode )`
 
 Open an object store and start a new transaction.
 
-* `name`: A DB name.
 * `schema`: A DB schema.
 * `store`: The name of the object store to open.
 * `mode`: The transaction mode; defaults to 'readonly'. See <https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/transaction>
