@@ -65,12 +65,13 @@ function init( global ) {
 
     /**
      * Open a transaction on an object store.
-     * @param origin    The content origin configuration.
+     * @param name      The IndexedDB instance name.
+     * @param schema    The database schema.
      * @param store     The object store name.
      * @param mode      The transaction mode; defaults to 'readonly'.
      */
-    async function idbOpenObjStore( origin, store, mode = 'readonly' ) {
-        const db = await idbOpen( origin );
+    async function idbOpenObjStore( name, schema, store, mode = 'readonly' ) {
+        const db = await idbOpen( name, schema );
         return db.transaction( store, mode ).objectStore( store );
     }
 
