@@ -1,6 +1,34 @@
 # idb
 Promise based functional wrapper for IndexedDB.
 
+## Setup
+
+The API is designed to be used either server-side or from within a browser,
+and needs to be instantiated with a global object providing `indexedDB` and `IDBKeyRange` properties.
+The `window` object can be used for this within the browser:
+
+```js
+    import idb from '@locomote.sh/idb';
+
+    const {
+        indexedDB,
+        IDBKeyRange,
+        idbOpen,
+        idbOpenObjStore,
+        idbRead,
+        idbReadAll,
+        idbWrite,
+        idbDelete,
+        idbOpenPK,
+        idbOpenIndex,
+        idbIndexCount
+    } = idb( window );
+```
+
+Alternatively, the `global` object within a service worker context can be used.
+
+On the server side, something such as <https://github.com/axemclion/IndexedDBShim> can be used to provide the necessary environment.
+
 ## Basic usage
 
 You normally start by opening an object store, providing both a DB instance name and an object store name.
