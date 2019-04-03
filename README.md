@@ -91,28 +91,28 @@ Where:
 A valid schema document looks like this:
 
 ```json
-,
-    stores: {
-        'files': {
-            options: {
-                keyPath: 'path'
+{
+    "stores": {
+        "files": {
+            "options": {
+                "keyPath": "path"
             },
-            indexes: {
-                'category': {
-                    keyPath: 'category',
-                    options: { unique: false }
+            "indexes": {
+                "category": {
+                    "keyPath": "category",
+                    "options": { "unique": false }
                 },
-                'status': {
-                    keyPath: 'status',
-                    options: { unique: false }
+                "status": {
+                    "keyPath": "status",
+                    "options": { "unique": false }
                 },
-                'page.collection': {
-                    keyPath: 'page.collection',
-                    options: { unique: false }
+                "page.collection": {
+                    "keyPath": "page.collection",
+                    "options": { "unique": false }
                 },
-                'commit': {
-                    keyPath: 'commit',
-                    options: { unique: false }
+                "commit": {
+                    "keyPath": "commit",
+                    "options": { "unique": false }
                 }
             }
         }
@@ -133,12 +133,16 @@ Upgrades the existing DB if the schema versions are different.
 * `name`: The name of the database to open.
 * `schema`: The database's schema.
 
+----
+
 `idbInit( db, schema )`
 
 Initialize an IndexedDB instance.
 
 * `db`: An IndexedDB instance.
 * `schema`: A database schema.
+
+----
 
 `idbOpenObjStore( name, schema, store, mode )`
 
@@ -149,12 +153,16 @@ Open an object store and start a new transaction.
 * `store`: The name of the object store to open.
 * `mode`: The transaction mode; defaults to 'readonly'. See <https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/transaction>
 
+----
+
 `idbRead( key, objStore )`
 
 Read an object from an object store.
 
 * `key`: An object primary key.
 * `objStore`: The object store to read from.
+
+----
 
 `idbReadAll( keys, objStore )`
 
@@ -163,12 +171,16 @@ Read multiple objects from an object store.
 * `keys`: An array of object primary keys.
 * `objStore`: The object store to read from.
 
+----
+
 `idbWrite( object, objStore )`
 
 Write an object to an object store.
 
 * `object`: The object to write.
 * `objStore`: The object store to write to.
+
+----
 
 `idbDelete( key, objStore )`
 
@@ -177,12 +189,16 @@ Delete an object from an object store.
 * `key`: The primary key of the object to delete.
 * `objStore`: The object store to delete from.
 
+----
+
 `idbOpenPk( term, objStore )`
 
 Open a cursor on the object store's primary key index.
 
 * `term`: A cursor query term; see <https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor>
 * `objStore`: The object store to query.
+
+----
 
 `idbOpenIndex( index, term, objStore )`
 
@@ -192,6 +208,7 @@ Open a cursor on a named index.
 * `term`: A cursor query term; see <https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor>
 * `objStore`: The object store to query.
 
+----
 `idbIndexCount( index, term, objStore )`
 
 Count the number of items in an index.
