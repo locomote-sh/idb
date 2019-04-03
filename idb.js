@@ -30,7 +30,10 @@ function init( global ) {
      * @param schema    The database schema.
      */
     function idbOpen( schema ) {
-        const { name, version } = schema;
+        const { name, version = 1 } = schema;
+        if( !name ) {
+            throw new Error('idbOpen: "name" property not specified on schema');
+        }
         return new Promise( ( resolve, reject ) => {
             const request = indexedDB.open( name, version );
             request.onsuccess = ( e ) => {
