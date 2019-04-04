@@ -27,12 +27,12 @@ The `window` object can be used for this within the browser:
 
 Alternatively, the `global` object within a service worker context can be used.
 
-On the server side, something such as <https://github.com/axemclion/IndexedDBShim> can be used to provide the necessary environment.
+On the server side, something like <https://github.com/axemclion/IndexedDBShim> can be used to provide the necessary environment.
 
 ## Basic usage
 
-You start by opening an object store, providing a DB schema and an object store name.
-(DB schemas are described in the next section).
+You generally start not by opening a database directly but instead by opening a named object store of the database.
+You need to provide a schema object, describing the database schema (see next section) and the name of the object store to open.
 
 ```js
     const schema = { name: 'fruit-db', stores: {...} };
@@ -44,7 +44,7 @@ You start by opening an object store, providing a DB schema and an object store 
 Objects can then be read from the object store using their primary key:
 
 ```js
-    const appleObj = await idbRead('apple', objStore );
+    const appleObj = await idbRead( objStore, 'apple');
 ```
 
 Multiple objects can be read at once:
@@ -54,31 +54,31 @@ Multiple objects can be read at once:
         appleObj,
         pearObj,
         orangeObj
-    ] = await idbReadAll(['apple','pear','orange'], objStore );
+    ] = await idbReadAll( objStore, ['apple','pear','orange']);
 ```
 
 Objects can be written:
 
 ```js
-    await idbWrite( pineappleObj, objStore );
+    await idbWrite( objStore, pineappleObj );
 ```
 
 Or deleted, using their primary key:
 
 ```js
-    await idbDelete('pear', objStore );
+    await idbDelete( objStore, 'pear');
 ```
 
 Cursors can be opened on the primary key instance by providing a filter term:
 
 ```js
-    const cursor = await idbOpenPK('apple', objStore );
+    const cursor = await idbOpenPK( objStore, 'apple');
 ```
 
 Or on a named index by providing the index name with a filter term:
 
 ```js
-    const cursor = await idbOpenIndex('color','yellow', objStore );
+    const cursor = await idbOpenIndex( objStore, 'color','yellow');
 ```
 
 ## Schema
@@ -184,65 +184,65 @@ Open an object store and start a new transaction.
 
 ----
 
-`idbRead( key, objStore )`
+`idbRead( objStore, key )`
 
 Read an object from an object store.
 
-* `key`: An object primary key.
 * `objStore`: The object store to read from.
+* `key`: An object primary key.
 
 ----
 
-`idbReadAll( keys, objStore )`
+`idbReadAll( objStore, keys )`
 
 Read multiple objects from an object store.
 
-* `keys`: An array of object primary keys.
 * `objStore`: The object store to read from.
+* `keys`: An array of object primary keys.
 
 ----
 
-`idbWrite( object, objStore )`
+`idbWrite( objStore, object )`
 
 Write an object to an object store.
 
-* `object`: The object to write.
 * `objStore`: The object store to write to.
+* `object`: The object to write.
 
 ----
 
-`idbDelete( key, objStore )`
+`idbDelete( objStore, key )`
 
 Delete an object from an object store.
 
-* `key`: The primary key of the object to delete.
 * `objStore`: The object store to delete from.
+* `key`: The primary key of the object to delete.
 
 ----
 
-`idbOpenPk( term, objStore )`
+`idbOpenPk( objStore, term )`
 
 Open a cursor on the object store's primary key index.
 
-* `term`: A cursor query term; see <https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor>
 * `objStore`: The object store to query.
+* `term`: A cursor query term; see <https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor>
 
 ----
 
-`idbOpenIndex( index, term, objStore )`
+`idbOpenIndex( objStore, index, term )`
 
 Open a cursor on a named index.
 
+* `objStore`: The object store to query.
 * `index`: The name of the index to query.
 * `term`: A cursor query term; see <https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor>
-* `objStore`: The object store to query.
 
 ----
-`idbIndexCount( index, term, objStore )`
+`idbIndexCount( objStore, index, term )`
 
 Count the number of items in an index.
 
+* `objStore`: The object store to query.
 * `index`: The name of the index to query.
 * `term`: A cursor query term; see <https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/openCursor>
-* `objStore`: The object store to query.
 

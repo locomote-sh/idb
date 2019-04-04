@@ -88,19 +88,19 @@ function init( global ) {
 
     /**
      * Read an object from an object store.
-     * @param key       An object primary key.
      * @param objStore  An open object store transaction.
+     * @param key       An object primary key.
      */
-    function idbRead( key, objStore ) {
+    function idbRead( objStore, key ) {
         return reqAsPromise( objStore.get( key ) );
     }
 
     /**
      * Read a list of objects from an object store.
-     * @param keys      A list of object primary keys.
      * @param objStore  An open object store transaction.
+     * @param keys      A list of object primary keys.
      */
-    function idbReadAll( keys, objStore ) {
+    function idbReadAll( objStore, keys ) {
         return Promise.all( keys.map( key => {
             return idbRead( key, objStore );
         }));
@@ -108,48 +108,48 @@ function init( global ) {
 
     /**
      * Write an object to an object store.
-     * @param object    The object to write.
      * @param objStore  An open object store transaction.
+     * @param object    The object to write.
      */
-    function idbWrite( object, objStore ) {
+    function idbWrite( objStore, object ) {
         return reqAsPromise( objStore.put( object ) );
     }
 
     /**
      * Delete an object from an object store.
-     * @param key       An object primary key.
      * @param objStore  An open object store transaction.
+     * @param key       An object primary key.
      */
-    function idbDelete( key, objStore ) {
+    function idbDelete( objStore, key ) {
         return reqAsPromise( objStore.delete( key ) );
     }
 
     /**
      * Open a cursor on an object store's primary key index.
-     * @param term      An index filter term.
      * @param objStore  An open object store transaction.
+     * @param term      An index filter term.
      */
-    function idbOpenPK( term, objStore ) {
+    function idbOpenPK( objStore, term ) {
         return objStore.openCursor( term );
     }
 
     /**
      * Open a cursor on an object store index.
+     * @param objStore  An open object store transaction.
      * @param index     The name of the index to open.
      * @param term      An index filter term.
-     * @param objStore  An open object store transaction.
      */
-    function idbOpenIndex( index, term, objStore ) {
+    function idbOpenIndex( objStore, index, term ) {
         return objStore.index( index ).openCursor( term );
     }
 
     /**
      * Count the number of items in an index.
+     * @param objStore  An open object store transaction.
      * @param index     The name of the index to open.
      * @param term      An index filter term.
-     * @param objStore  An open object store transaction.
      */
-    async function idbIndexCount( index, term, objStore ) {
+    async function idbIndexCount( objStore, index, term ) {
         return reqAsPromise( objStore.index( index ).count( term ) );
     }
 
