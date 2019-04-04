@@ -1,7 +1,8 @@
 {
     "name": "@locomote.sh/idb",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Functional, promise-based wrapper for IndexedDB.",
+    "keywords": "indexeddb promise async await function server",
     "main": "idb.js",
     "scripts": {
         "test": "mocha"
