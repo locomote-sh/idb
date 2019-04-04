@@ -1,6 +1,14 @@
 # idb
 Promise based functional wrapper for IndexedDB.
 
+## Installation
+
+Install using _npm_:
+
+```
+npm install "@locomote.sh/idb"
+```
+
 ## Setup
 
 The API is designed to be used either server-side or from within a browser,
