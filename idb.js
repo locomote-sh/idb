@@ -102,7 +102,7 @@ function init( global ) {
      */
     function idbReadAll( objStore, keys ) {
         return Promise.all( keys.map( key => {
-            return idbRead( key, objStore );
+            return idbRead( objStore, key );
         }));
     }
 
