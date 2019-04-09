@@ -46,14 +46,16 @@ const fruits = [
     { name: 'orange', color: 'orange' }
 ];
 
+async function populateDB() {
+    const objStore = await idbOpenObjStore( schema, 'fruit', 'readwrite');
+    await Promise.all( fruits.map( fruit => {
+        return idbWrite( objStore, fruit );
+    }));
+}
+
 describe('read/write', function() {
 
-    before( async function() {
-        const objStore = await idbOpenObjStore( schema, 'fruit', 'readwrite');
-        await Promise.all( fruits.map( fruit => {
-            return idbWrite( objStore, fruit );
-        }));
-    })
+    before( populateDB );
 
     it('idbRead', async function() {
         const objStore = await idbOpenObjStore( schema, 'fruit');
@@ -78,12 +80,7 @@ describe('read/write', function() {
 
 describe('delete', function() {
 
-    before( async function() {
-        const objStore = await idbOpenObjStore( schema, 'fruit', 'readwrite');
-        await Promise.all( fruits.map( fruit => {
-            return idbWrite( objStore, fruit );
-        }));
-    })
+    before( populateDB );
 
     it('idbDelete', async function() {
         let objStore = await idbOpenObjStore( schema, 'fruit', 'readwrite');
@@ -95,4 +92,3 @@ describe('delete', function() {
     });
 
 });
-

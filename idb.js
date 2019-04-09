@@ -21,7 +21,7 @@
  * @param global    A global object with { indexedDB, IDBKeyRange } properties.
  * @return Returns a set of functions for interacting with an IndexedDB instance.
  */
-function init( global ) {
+function initIDB( global ) {
 
     const { indexedDB, IDBKeyRange } = global;
 
@@ -169,4 +169,7 @@ function init( global ) {
         
 }
 
-module.exports = init;
+if( typeof module === 'object' ) {
+    module.exports = initIDB;
+}
+
