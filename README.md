@@ -48,7 +48,14 @@ The connection is composed of a number of functions for reading and writing to a
 
 ```js
     const { idbConnect } = idb( window );
-    const { read, write, remove } = await idbConnect( schema, 'fruits' );
+    const {
+        read,
+        write,
+        remove,
+        openPK,
+        openIndex,
+        indexCount
+    } = await idbConnect( schema, 'fruits' );
 ```
 
 When connecting, you need to provide a schema object describing the database schema (see _Schema_ below).
@@ -86,6 +93,17 @@ behind the scenes, the connection will attempt to reuse any open object store tr
     grape.color = 'purple';
     await write( grape );
     await write( pear );
+```
+
+### Multiple connections
+
+If you need to open connections to multiple object stores then you will probably want to keep the functions attached to their connection object:
+
+```js
+    const fruitCx = await idbConnect( schema, 'fruits');
+    const foodCx  = await idbConnect( schema, 'foods');
+    const pear = await fruitCx.read('pear');
+    await foodCx.write( pear );
 ```
 
 ## Schema
@@ -224,7 +242,7 @@ Returns the functions described below in the _Connection API_ section.
 
 ----
 
-`openPk( term )`
+`openPK( term )`
 
 Open a cursor on the object store's primary key index.
 
@@ -241,7 +259,7 @@ Open a cursor on a named index.
 
 ----
 
-`idbIndexCount( index, term )`
+`indexCount( index, term )`
 
 (Asynchronous). Count the number of items in an index.
 
