@@ -200,6 +200,8 @@ function initIDB( global ) {
     return {
         indexedDB,
         IDBKeyRange,
+        idbOpen,
+        idbInit,
         idbConnect
     };
         
