@@ -162,7 +162,7 @@ function initIDB( global ) {
          * Open a cursor on an object store's primary key index.
          * @param term  An index filter term.
          */
-        function openPK( objStore, term ) {
+        function openPK( term ) {
             const objStore = _tx();
             return objStore.openCursor( term );
         }
