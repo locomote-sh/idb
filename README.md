@@ -210,6 +210,18 @@ Returns the functions described below in the _Connection API_ section.
 
 ## Connection API
 
+`keyPath`
+
+String property returning the underlying object store's key path.
+
+----
+
+`indexNames`
+
+Array property returning a list of names of the indexes defined on the underlying object store.
+
+----
+
 `read( key )`
 
 (Asynchronous). Read an object from an object store.

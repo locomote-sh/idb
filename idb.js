@@ -118,6 +118,9 @@ function initIDB( global ) {
             return _objStore;
         }
 
+        // Read some metadata from the object store.
+        const { keyPath, indexNames } = _tx();
+
         /**
          * Read an object from an object store.
          * @param key   An object primary key.
@@ -186,6 +189,8 @@ function initIDB( global ) {
 
         // Return the API.
         return {
+            keyPath,
+            indexNames,
             read,
             readAll,
             write,

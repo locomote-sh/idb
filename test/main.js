@@ -83,3 +83,21 @@ describe('remove', function() {
     });
 
 });
+
+describe('meta', function() {
+
+    before( populateDB );
+
+    it('keyPath', async function() {
+        const { keyPath } = await idbConnect( schema, 'fruit');
+        assert.equal( keyPath, 'name');
+    });
+
+
+    it('indexNames', async function() {
+        const { indexNames } = await idbConnect( schema, 'fruit');
+        assert.equal( indexNames.length, 1 );
+        assert.equal( indexNames[0], 'color');
+    });
+
+});
