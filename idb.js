@@ -178,6 +178,13 @@ function initIDB( global ) {
             return reqAsPromise( objStore.index( index ).count( term ) );
         }
 
+        /**
+         * Close the database.
+         */
+        function close() {
+            db.close();
+        }
+
         // Return the API.
         return {
             keyPath,
@@ -188,7 +195,8 @@ function initIDB( global ) {
             remove,
             openPK,
             openIndex,
-            indexCount
+            indexCount,
+            close
         };
 
     }
