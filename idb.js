@@ -88,33 +88,21 @@ function initIDB( global ) {
         // The currently active object store transaction.
         let _objStore;
 
-        // Start a new transaction and open the object store.
-        function _openObjStore( mode ) {
-            const tx = db.transaction( store, mode );
-            // Flag indicating whether the transaction is active.
-            tx.__active = true;
-            // Event handlers to mark the transaction is inactive.
-            tx.complete = tx.onerror = () => tx.__active = false;
-            // Attach method for testing the transaction's usability.
-            tx.__usable = function( required ) {
-                const { __active, mode } = this;
-                // The transaction is usable if:
-                // - it is still active (i.e. not complete or in error);
-                // - its mode matches the required mode
-                // - or its mode is readwrite (implying the required mode 
-                //   is readonly).
-                return __active && (mode == required || mode == 'readwrite');
-            }
-            // Open the object store within the new transaction.
-            return tx.objectStore( store );
-        }
-
         // Return an active transaction opened on the object store.
-        function _tx( mode = 'readonly' ) {
-            if( _objStore && _objStore.transaction.__usable( mode ) ) {
-                return _objStore;
+        function _tx( requiredMode = 'readonly' ) {
+            if( _objStore ) {
+                const { mode } = _objStore;
+                if( mode == requiredMode || mode === 'readwrite' ) {
+                    return _objStore;
+                }
             }
-            _objStore = _openObjStore( mode );
+            // Start a new transaction.
+            const tx = db.transaction( store, requiredMode );
+            // Event handlers to clear the current object store when transaction
+            // goes inactive.
+            tx.complete = tx.abort = tx.onerror = () => _objStore = null;
+            // Open object store.
+            _objStore = tx.objectStore( store );
             return _objStore;
         }
 
