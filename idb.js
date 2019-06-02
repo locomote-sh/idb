@@ -85,24 +85,27 @@ function initIDB( global ) {
         // The database connection.
         const db = await idbOpen( schema );
 
-        // The currently active object store transaction.
+        // The currently active object store.
         let _objStore;
+        // The transaction mode of the current object store.
+        let _currentMode;
 
         // Return an active transaction opened on the object store.
-        function _tx( requiredMode = 'readonly' ) {
+        function _tx( mode = 'readonly' ) {
             if( _objStore ) {
-                const { mode } = _objStore;
-                if( mode == requiredMode || mode === 'readwrite' ) {
+                if( _currentMode === 'readwrite' || _currentMode === mode ) {
                     return _objStore;
                 }
             }
             // Start a new transaction.
-            const tx = db.transaction( store, requiredMode );
+            const tx = db.transaction( store, mode );
             // Event handlers to clear the current object store when transaction
             // goes inactive.
-            tx.complete = tx.abort = tx.onerror = () => _objStore = null;
+            tx.oncomplete = tx.onabort = tx.onerror = () => _objStore = null;
             // Open object store.
             _objStore = tx.objectStore( store );
+            // Record current transaction mode.
+            _currentMode = mode;
             return _objStore;
         }
 
