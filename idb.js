@@ -66,17 +66,6 @@ function initIDB( global ) {
     }
 
     /**
-     * Open a transaction on an object store.
-     * @param schema    The database schema.
-     * @param store     The object store name.
-     * @param mode      The transaction mode; defaults to 'readonly'.
-     */
-    async function idbOpenObjStore( schema, store, mode = 'readonly' ) {
-        const db = await idbOpen( schema );
-        return db.transaction( store, mode ).objectStore( store );
-    }
-
-    /**
      * Convert an idb request object to a promise.
      */
     function reqAsPromise( request ) {
@@ -87,84 +76,137 @@ function initIDB( global ) {
     }
 
     /**
-     * Read an object from an object store.
-     * @param objStore  An open object store transaction.
-     * @param key       An object primary key.
+     * Connect to a named object store of a database instance.
+     * @param schema    The database schema.
+     * @param store     The name of the object store being connected to.
      */
-    function idbRead( objStore, key ) {
-        return reqAsPromise( objStore.get( key ) );
-    }
+    async function idbConnect( schema, store ) {
 
-    /**
-     * Read a list of objects from an object store.
-     * @param objStore  An open object store transaction.
-     * @param keys      A list of object primary keys.
-     */
-    function idbReadAll( objStore, keys ) {
-        return Promise.all( keys.map( key => {
-            return idbRead( objStore, key );
-        }));
-    }
+        // The database connection.
+        const db = await idbOpen( schema );
 
-    /**
-     * Write an object to an object store.
-     * @param objStore  An open object store transaction.
-     * @param object    The object to write.
-     */
-    function idbWrite( objStore, object ) {
-        return reqAsPromise( objStore.put( object ) );
-    }
+        // The currently active object store.
+        let _objStore;
+        // The transaction mode of the current object store.
+        let _currentMode;
 
-    /**
-     * Delete an object from an object store.
-     * @param objStore  An open object store transaction.
-     * @param key       An object primary key.
-     */
-    function idbDelete( objStore, key ) {
-        return reqAsPromise( objStore.delete( key ) );
-    }
+        // Return an active transaction opened on the object store.
+        function _tx( mode = 'readonly' ) {
+            if( _objStore ) {
+                if( _currentMode === 'readwrite' || _currentMode === mode ) {
+                    return _objStore;
+                }
+            }
+            // Start a new transaction.
+            const tx = db.transaction( store, mode );
+            // Event handlers to clear the current object store when transaction
+            // goes inactive.
+            tx.oncomplete = tx.onabort = tx.onerror = () => _objStore = null;
+            // Open object store.
+            _objStore = tx.objectStore( store );
+            // Record current transaction mode.
+            _currentMode = mode;
+            return _objStore;
+        }
 
-    /**
-     * Open a cursor on an object store's primary key index.
-     * @param objStore  An open object store transaction.
-     * @param term      An index filter term.
-     */
-    function idbOpenPK( objStore, term ) {
-        return objStore.openCursor( term );
-    }
+        // Read some metadata from the object store.
+        const { keyPath, indexNames } = _tx();
 
-    /**
-     * Open a cursor on an object store index.
-     * @param objStore  An open object store transaction.
-     * @param index     The name of the index to open.
-     * @param term      An index filter term.
-     */
-    function idbOpenIndex( objStore, index, term ) {
-        return objStore.index( index ).openCursor( term );
-    }
+        /**
+         * Read an object from an object store.
+         * @param key   An object primary key.
+         */
+        function read( key ) {
+            const objStore = _tx();
+            return reqAsPromise( objStore.get( key ) );
+        }
 
-    /**
-     * Count the number of items in an index.
-     * @param objStore  An open object store transaction.
-     * @param index     The name of the index to open.
-     * @param term      An index filter term.
-     */
-    async function idbIndexCount( objStore, index, term ) {
-        return reqAsPromise( objStore.index( index ).count( term ) );
+        /**
+         * Read a list of objects from an object store.
+         * @param keys  A list of object primary keys.
+         */
+        function readAll( keys ) {
+            return Promise.all( keys.map( key => {
+                return read( key );
+            }));
+        }
+
+        /**
+         * Write an object to an object store.
+         * @param object    The object to write.
+         */
+        function write( object ) {
+            const objStore = _tx('readwrite');
+            return reqAsPromise( objStore.put( object ) );
+        }
+
+        /**
+         * Delete an object from an object store.
+         * @param key   An object primary key.
+         */
+        function remove( key ) {
+            const objStore = _tx('readwrite');
+            return reqAsPromise( objStore.delete( key ) );
+        }
+
+        /**
+         * Open a cursor on an object store's primary key index.
+         * @param term  An index filter term.
+         */
+        function openPK( term ) {
+            const objStore = _tx();
+            return objStore.openCursor( term );
+        }
+
+        /**
+         * Open a cursor on an object store index.
+         * @param index The name of the index to open.
+         * @param term  An index filter term.
+         */
+        function openIndex( index, term ) {
+            const objStore = _tx();
+            return objStore.index( index ).openCursor( term );
+        }
+
+        /**
+         * Count the number of items in an index.
+         * @param index The name of the index to open.
+         * @param term  An index filter term.
+         */
+        async function indexCount( index, term ) {
+            const objStore = _tx();
+            return reqAsPromise( objStore.index( index ).count( term ) );
+        }
+
+        /**
+         * Close the database.
+         */
+        function close() {
+            db.close();
+        }
+
+        // Return the API.
+        return {
+            keyPath,
+            indexNames,
+            read,
+            readAll,
+            write,
+            remove,
+            openPK,
+            openIndex,
+            indexCount,
+            close
+        };
+
     }
 
     return {
         indexedDB,
         IDBKeyRange,
         idbOpen,
-        idbOpenObjStore,
-        idbRead,
-        idbReadAll,
-        idbWrite,
-        idbDelete,
-        idbOpenPK,
-        idbOpenIndex,
-        idbIndexCount
+        idbInit,
+        idbConnect
     };
         
 }
