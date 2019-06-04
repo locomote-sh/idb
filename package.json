@@ -1,8 +1,8 @@
 {
     "name": "@locomote.sh/idb",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Functional, promise-based wrapper for IndexedDB.",
-    "keywords": "indexeddb promise async await function server",
+    "keywords": [],
     "main": "idb.js",
     "scripts": {
         "test": "mocha"
@@ -11,7 +11,6 @@
         "type": "git",
         "url": "git+https://github.com/locomote-sh/idb.git"
     },
-    "keywords": [],
     "author": "Julian Goacher",
     "license": "Apache-2.0",
     "bugs": {

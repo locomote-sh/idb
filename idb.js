@@ -111,6 +111,11 @@ function initIDB( global ) {
 
         // Read some metadata from the object store.
         const { keyPath, indexNames } = _tx();
+        // Because we're not executing any operations on the transaction, the oncomplete
+        // event handler won't be fired so we need manually clear the cached object store
+        // reference to avoid it being picked up in its post-active state by the first
+        // subsequent db op.
+        _objStore = null;
 
         /**
          * Read an object from an object store.
