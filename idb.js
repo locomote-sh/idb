@@ -85,44 +85,23 @@ function initIDB( global ) {
         // The database connection.
         const db = await idbOpen( schema );
 
-        // The currently active object store.
-        let _objStore;
-        // The transaction mode of the current object store.
-        let _currentMode;
-
-        // Return an active transaction opened on the object store.
-        function _tx( mode = 'readonly' ) {
-            if( _objStore ) {
-                if( _currentMode === 'readwrite' || _currentMode === mode ) {
-                    return _objStore;
-                }
-            }
+        // Start a new transaction and return a reference to the object store.
+        function openObjStore( mode = 'readonly' ) {
             // Start a new transaction.
             const tx = db.transaction( store, mode );
-            // Event handlers to clear the current object store when transaction
-            // goes inactive.
-            tx.oncomplete = tx.onabort = tx.onerror = () => _objStore = null;
             // Open object store.
-            _objStore = tx.objectStore( store );
-            // Record current transaction mode.
-            _currentMode = mode;
-            return _objStore;
+            return tx.objectStore( store );
         }
 
         // Read some metadata from the object store.
-        const { keyPath, indexNames } = _tx();
-        // Because we're not executing any operations on the transaction, the oncomplete
-        // event handler won't be fired so we need manually clear the cached object store
-        // reference to avoid it being picked up in its post-active state by the first
-        // subsequent db op.
-        _objStore = null;
+        const { keyPath, indexNames } = openObjStore();
 
         /**
          * Read an object from an object store.
-         * @param key   An object primary key.
+         * @param key       An object primary key.
+         * @param objStore  An optional reference to an already opened object store.
          */
-        function read( key ) {
-            const objStore = _tx();
+        function read( key, objStore = openObjStore() ) {
             return reqAsPromise( objStore.get( key ) );
         }
 
@@ -131,8 +110,9 @@ function initIDB( global ) {
          * @param keys  A list of object primary keys.
          */
         function readAll( keys ) {
+            const objStore = openObjStore();
             return Promise.all( keys.map( key => {
-                return read( key );
+                return read( key, objStore );
             }));
         }
 
@@ -141,7 +121,7 @@ function initIDB( global ) {
          * @param object    The object to write.
          */
         function write( object ) {
-            const objStore = _tx('readwrite');
+            const objStore = openObjStore('readwrite');
             return reqAsPromise( objStore.put( object ) );
         }
 
@@ -150,7 +130,7 @@ function initIDB( global ) {
          * @param key   An object primary key.
          */
         function remove( key ) {
-            const objStore = _tx('readwrite');
+            const objStore = openObjStore('readwrite');
             return reqAsPromise( objStore.delete( key ) );
         }
 
@@ -159,7 +139,7 @@ function initIDB( global ) {
          * @param term  An index filter term.
          */
         function openPK( term ) {
-            const objStore = _tx();
+            const objStore = openObjStore();
             return objStore.openCursor( term );
         }
 
@@ -169,7 +149,7 @@ function initIDB( global ) {
          * @param term  An index filter term.
          */
         function openIndex( index, term ) {
-            const objStore = _tx();
+            const objStore = openObjStore();
             return objStore.index( index ).openCursor( term );
         }
 
@@ -179,7 +159,7 @@ function initIDB( global ) {
          * @param term  An index filter term.
          */
         async function indexCount( index, term ) {
-            const objStore = _tx();
+            const objStore = openObjStore();
             return reqAsPromise( objStore.index( index ).count( term ) );
         }
 

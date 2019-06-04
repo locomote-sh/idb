@@ -1,0 +1,61 @@
+<html>
+<head>
+<script src="../idb.js"></script>
+<script>
+window.addEventListener('load', async () => {
+
+    await new Promise( resolve => {
+        const request = indexedDB.deleteDatabase('test');
+        request.onsuccess = request.onerror = request.onblocked = resolve;
+    });
+
+    const { idbConnect } = initIDB( window );
+
+    const schema = {
+        name: 'test',
+        version: 1,
+        stores: {
+            'fruit': {
+                options: { keyPath: 'name' },
+                indexes: {
+                    color: {
+                        keyPath: 'color',
+                        options: { unique: false }
+                    }
+                }
+            }
+        }
+    }
+
+    const { read, write, readAll, indexCount } = await idbConnect( schema, 'fruit');
+
+    const fruits = [
+        { name: 'apple', color: 'green' },
+        { name: 'banana', color: 'yellow' },
+        { name: 'grape', color: 'purple' },
+        { name: 'pineapple', color: 'yellow' },
+        { name: 'orange', color: 'orange' }
+    ];
+
+    console.log('Apple: %o', await read('apple') );
+
+    console.log('Populating db...');
+
+    await Promise.all( fruits.map( fruit => {
+        return write( fruit );
+    }));
+
+    console.log('Colour count: %d', await indexCount('color') );
+
+    console.log('Apple: %o', await read('apple') );
+    console.log('Banana: %o', await read('banana') );
+
+    setTimeout( async () => {
+        console.log( await readAll(['grape','pineapple','orange']) );
+    }, 500 );
+
+});
+</script>
+</head>
+<body></body>
+</html>
